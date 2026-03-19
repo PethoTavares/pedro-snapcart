@@ -1,20 +1,17 @@
 import js from "@eslint/js";
 
 export default [
-    js.configs.recommended,
-    {
-        languageOptions: {
-            globals: {
-                node: true,
-                process: true,
-                fetch: true 
-            },
-            ecmaVersion: "latest",
-            sourceType: "module",
-        },
-        rules: {
-            "no-unused-vars": "warn",
-            "no-undef": "error"
-        }
-    }
-];
+  js.configs.recommended,
+  {
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        fetch: "readonly",
+        URL: "readonly",
+        process: "readonly",
+      },
+    },
+    files: ["index.js", "index.test.js"]
+  }
+]
