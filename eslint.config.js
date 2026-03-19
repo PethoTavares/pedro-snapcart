@@ -6,13 +6,15 @@ export default [
         languageOptions: {
             globals: {
                 node: true,
-                process: true
+                process: true,
+                fetch: true 
             },
             ecmaVersion: "latest",
             sourceType: "module",
         },
         rules: {
-            // Você pode adicionar regras extras aqui se quiser
+            "no-unused-vars": "warn",
+            "no-undef": "error"
         }
     }
 ];
