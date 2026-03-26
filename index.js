@@ -8,6 +8,7 @@ export function createServer() {
     return http.createServer(handler);
 }
 
-if (process.argv[1]===(import.meta.url).pathname) {
+const __filename = new URL(import.meta.url).pathname;
+if (process.argv[1] === __filename) {
     createServer().listen(3000);
 }
