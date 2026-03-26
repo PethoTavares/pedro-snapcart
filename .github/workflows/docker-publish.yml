@@ -1,55 +1,37 @@
-name: Build and Push to GHCR 
+name: Build and Push to GHCR
 
-on: 
-  push: 
-    branches: 
-      - main 
+on:
+  push:
+    branches:
+      - main
 
 env:
-  
+
   IMAGE_NAME: pethotavares/snapcart-raw
 
-jobs: 
-  build-and-push: 
-    runs-on: ubuntu-latest 
-
-    permissions: 
-      contents: read 
-      packages: write 
-
-    steps: 
-      - name: Checkout repository 
-        uses: actions/checkout@v4 
-
-      - name: Log in to GitHub Container Registry 
-        uses: docker/login-action@v3 
-        with: 
-          registry: ghcr.io 
-          username: ${{ github.actor }} 
-          password: ${{ secrets.GITHUB_TOKEN }} 
-
-      - name: Build and push Docker image 
-        uses: docker/build-push-action@v5 
-        with: 
-          context: . 
-          push: true 
-         
-          tags: ghcr.io/${{ env.IMAGE_NAME }}:latest
-
-  deploy:
+jobs:
+  build-and-push:
     runs-on: ubuntu-latest
-    needs: [build-and-push]
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
-            docker stop snapcart || true
-            docker rm snapcart || true
-            docker run -d --name snapcart -p 3000:3000 ghcr.io/${{ env.IMAGE_NAME }}:latest
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+
+          tags: ghcr.io/${{ env.IMAGE_NAME }}:latest
