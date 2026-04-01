@@ -24,7 +24,7 @@ jobs:
 
       - name: Build and Push Image
         run: |
-          IMAGE=ghcr.io/${{ github.repository }}:latest
+          IMAGE=ghcr.io/pethotavares/pedro-snapcart:latest
           docker build -t $IMAGE .
           docker push $IMAGE
 
@@ -33,14 +33,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy on EC2 via SSH
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            IMAGE=ghcr.io/${{ github.repository }}:latest
+            IMAGE=ghcr.io/pethotavares/pedro-snapcart:latest
 
             echo "Login to GHCR"
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
