@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to EC2
+      - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -46,17 +46,17 @@ jobs:
           script: |
             IMAGE=ghcr.io/pethotavares/pedro-snapcart:latest
 
-            echo "Login to GHCR"
+            echo "Logging into GHCR..."
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            echo "Pull latest image"
+            echo "Pulling latest image..."
             docker pull $IMAGE
 
-            echo "Stop old container"
+            echo "Stopping old container..."
             docker stop app || true
             docker rm app || true
 
-            echo "Run new container"
+            echo "Starting new container..."
             docker run -d \
               -p 80:3000 \
               --name app \
