@@ -61,3 +61,19 @@ jobs:
               -p 80:3000 \
               --name app \
               $IMAGE
+
+      - name: Notify Lambda on Success
+        if: ${{ success() }}
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          curl -X POST "${{ secrets.LAMBDA_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"status\":\"success\",\"branch\":\"${{ github.ref_name }}\",\"commit\":\"${{ github.sha }}\",\"timestamp\":\"${TIMESTAMP}\"}"
+
+      - name: Notify Lambda on Failure
+        if: ${{ failure() }}
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          curl -X POST "${{ secrets.LAMBDA_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"status\":\"failure\",\"branch\":\"${{ github.ref_name }}\",\"commit\":\"${{ github.sha }}\",\"timestamp\":\"${TIMESTAMP}\"}"
