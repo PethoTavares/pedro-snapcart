@@ -62,18 +62,19 @@ jobs:
               --name app \
               $IMAGE
 
-      - name: Notify Lambda on Success
-        if: ${{ success() }}
+      - name: Notify Lambda
+        if: ${{ always() }}
+        env:
+          LAMBDA_URL: ${{ secrets.LAMBDA_URL }}
+          DEPLOY_STATUS: ${{ job.status }}
         run: |
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          curl -X POST "${{ secrets.LAMBDA_URL }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"status\":\"success\",\"branch\":\"${{ github.ref_name }}\",\"commit\":\"${{ github.sha }}\",\"timestamp\":\"${TIMESTAMP}\"}"
+          if [ -z "$LAMBDA_URL" ]; then
+            echo "LAMBDA_URL secret is empty or missing."
+            exit 1
+          fi
 
-      - name: Notify Lambda on Failure
-        if: ${{ failure() }}
-        run: |
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          curl -X POST "${{ secrets.LAMBDA_URL }}" \
+
+          curl --fail --show-error --silent -X POST "$LAMBDA_URL" \
             -H "Content-Type: application/json" \
-            -d "{\"status\":\"failure\",\"branch\":\"${{ github.ref_name }}\",\"commit\":\"${{ github.sha }}\",\"timestamp\":\"${TIMESTAMP}\"}"
+            -d "{\"status\":\"${DEPLOY_STATUS}\",\"branch\":\"${{ github.ref_name }}\",\"commit\":\"${{ github.sha }}\",\"timestamp\":\"${TIMESTAMP}\"}"
